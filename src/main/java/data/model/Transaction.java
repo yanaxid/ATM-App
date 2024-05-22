@@ -21,6 +21,5 @@ public class Transaction {
   private Customer customer;
   private TransactionType type;
   private double expense;
-  
  
 }

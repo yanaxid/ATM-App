@@ -1,6 +1,5 @@
 package com.tujuhsembilan;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -11,7 +10,6 @@ import data.constant.BankCompany;
 import data.model.ATM;
 import data.model.Bank;
 import data.model.Customer;
-import data.model.Transaction;
 import data.repository.ATMRepo;
 import data.repository.BankRepo;
 
@@ -20,15 +18,12 @@ import static com.tujuhsembilan.logic.ConsoleUtil.*;
 public class App {
 
 	public static void main(String[] args) {
-		
-		List<Transaction> transactions = new ArrayList<Transaction>();
 
 		boolean loop = true;
 
 		while (loop) {
+
 			printClear();
-
-
 			int num = 1;
 			List<BankCompany> bankCompanies = BankCompany.values();
 			System.out.println();
@@ -39,26 +34,23 @@ public class App {
 			System.out.println(" 0. EXIT");
 			System.out.print(" > ");
 
-			
 			int selection = validateInputNumber("> ", "");
-			
-			if(selection == 0) {
+
+			if (selection == 0) {
 				selection = -1;
-			}else {
-				selection = selection-1;
+			} else {
+				selection = selection - 1;
 			}
 
-			
-
 			if (selection >= 0 && selection < BankCompany.values().size()) {
-				new App(BankCompany.getByOrder(selection).getName()).start(transactions);
+				new App(BankCompany.getByOrder(selection).getName()).start();
 			} else if (selection == -1) {
 				loop = false;
 			} else {
 				System.out.println(" Invalid input");
 			}
 		}
-		
+
 		System.out.println(" Terimakaish");
 	}
 
@@ -83,20 +75,18 @@ public class App {
 		this.atm = lAtm;
 	}
 
-	public void start(List<Transaction> transactions) {
+	public void start() {
 		if (bank != null && atm != null) {
 
-			Customer customer =  ATMLogic.login(bank, atm);
+			Customer customer = ATMLogic.login(bank, atm);
 
-			while (customer != null ) {
-				
-				boolean status = ATMLogic.mainMenu(customer, atm, transactions);
-				
-				if(!status) {
+			while (customer != null) {
+				boolean status = ATMLogic.mainMenu(customer, atm);
+
+				if (!status) {
 					break;
 				}
 			}
-
 		} else {
 			System.out.println("Cannot find Bank or ATM");
 		}

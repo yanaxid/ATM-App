@@ -10,15 +10,16 @@ import data.constant.BankCompany;
 import data.model.Bank;
 import data.model.Customer;
 import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.NONE)
+@Getter
 public class BankRepo {
 
     private static final long DEFAULT_DAILY_EXPENSE = 5_000_000;
     private static final long DEFAULT_WITHDRAWAL_LIMIT = 2_500_000;
-
-    private static final Set<Bank> store = new HashSet<>();
+    public static final Set<Bank> store = new HashSet<>();
     
     
     static {

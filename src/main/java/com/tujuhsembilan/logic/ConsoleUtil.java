@@ -3,7 +3,10 @@ package com.tujuhsembilan.logic;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
+import data.model.Bank;
+import data.model.Customer;
 import data.model.Transaction;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -202,5 +205,10 @@ public class ConsoleUtil {
 
 		return result;
 	}
+	
+	
+	
+	
+	
 
 }

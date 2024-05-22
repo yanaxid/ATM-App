@@ -2,16 +2,15 @@ package com.tujuhsembilan.logic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
-import data.constant.TransactionType;
 import data.model.ATM;
 import data.model.Bank;
 import data.model.Customer;
-import data.model.Transaction;
+import data.repository.BankRepo;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -21,54 +20,57 @@ public class ATMLogic {
 	public static Customer login(Bank bank, ATM atm) {
 		Customer customer = null;
 
-		int counter = 1;
+		// pesan input
+		System.out.print(" ACCOUNT : ");
+		String acc = String.valueOf(ConsoleUtil.validateInputNumber(" ACCOUNT : ", " Acount tidak ditemukan"));
 
-		do {
-			System.out.print(" ACCOUNT : ");
-			String acc = String.valueOf(ConsoleUtil.validateInputNumber(" ACCOUNT : ", " Acount tidak ditemukan"));
-			System.out.print(" PIN     : ");
-			String pin = String.valueOf(ConsoleUtil.validateInputNumber(" PIN     : ", " PIN anda salah, ulangi"));
+		// get all customers
+		Set<Customer> customers = getAllCustomer();
 
-			String message = "";
-			Set<Customer> customers = bank.getCustomers();
+		// looping
+		String pesan = "";
+		int counter = 0;
 
-			for (Customer c : customers) {
+		for (Customer c : customers) {
+			if (acc.equals(c.getAccount())) {
+				if (c.getInvalidTries() == 0) {
+					boolean isPin = true;
 
-				if (acc.equals(c.getAccount())) {
+					do {
+						System.out.print(" PIN     : ");
+						String pin = String.valueOf(ConsoleUtil.validateInputNumber(" PIN     : ", " PIN anda salah, ulangi"));
 
-					if (pin.equals(c.getPin())) {
-						message = " login ... as " + c.getFullName();
-						customer = c;
-						break;
-					} else {
-						if (counter == 3) {
-							message = " PIN salah, kesempatan habis";
-
+						if (pin.equals(c.getPin())) {
+							System.out.println(" login ... as " + c.getFullName());
+							c.setInvalidTries(0);
+							customer = c;
+							break;
 						} else {
-							message = " PIN salah, kesempatan " + (3 - counter) + "x lagi";
-							c.setInvalidTries(c.getInvalidTries() + 1);
+							System.out.println(" pin salah");
+							counter++;
 						}
-						break;
-					}
+
+						if (counter == 3) {
+							pesan = " akun terblokir";
+							c.setInvalidTries(3);
+							isPin = false;
+						}
+					} while (isPin);
+
+					break;
 				} else {
-					if (counter == 3) {
-						message = " ACCOUNT salah, kesempatan habis";
-					} else {
-						message = " ACCOUNT salah, coba lagi";
-					}
+					System.out.println(" akun anda terblokir");
+					break;
 				}
-
+			} else {
+				pesan = " akun tidak ada";
 			}
+		}
 
-			System.out.println(message);
-			if (customer != null) {
-				break;
-			}
-			counter++;
-		} while (counter <= 3);
-
+		if (counter == 3) {
+			System.out.println(pesan);
+		}
 		return customer;
-
 	}
 
 	public static void accountBalanceInformation(Customer customer) {
@@ -82,7 +84,7 @@ public class ATMLogic {
 
 	}
 
-	public static void moneyWithdrawal(Customer customer, ATM atm, List<Transaction> transactions) {
+	public static void moneyWithdrawal(Customer customer, ATM atm) {
 		System.out.print(" Tarik Tunai\n");
 
 		double nominalPenarikan = 0;
@@ -112,24 +114,7 @@ public class ATMLogic {
 					isNumber = true;
 					break;
 				case 5:
-
-					boolean status = true;
-
-					do {
-						System.out.print(" Masukan jumlah penarikan : ");
-						nominalPenarikan = Double.valueOf(ConsoleUtil.validateInputNumber(" Masukan jumlah penarikan : ", ""));
-
-						if (nominalPenarikan % 10_000 == 0) {
-							status = false;
-						} else {
-							System.out.println(" Harus kelipatan Rp. 10.000 ");
-							System.out.print(" Terbilang :");
-							System.out.print(ConsoleUtil.terbilang(Double.valueOf(10_000)) + " Rupiah");
-							System.out.println();
-
-						}
-					} while (status);
-
+					nominalPenarikan = tarikLainnya();
 					isNumber = true;
 					break;
 				default:
@@ -160,8 +145,6 @@ public class ATMLogic {
 					System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
 					System.out.println();
 
-					transactions.add(new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer,
-							TransactionType.WITHDRAWAL, nominalPenarikan));
 				} else {
 					System.out.println(" saldo tidak cukup");
 				}
@@ -176,7 +159,29 @@ public class ATMLogic {
 
 	}
 
-	public static void phoneCreditsTopUp(Customer customer, ATM atm, List<Transaction> transactions) {
+	public static double tarikLainnya() {
+		boolean status = true;
+		double nominalPenarikan;
+
+		do {
+			System.out.print(" Masukan jumlah penarikan : ");
+			nominalPenarikan = Double.valueOf(ConsoleUtil.validateInputNumber(" Masukan jumlah penarikan : ", ""));
+
+			if (nominalPenarikan % 10_000 == 0) {
+				status = false;
+			} else {
+				System.out.println(" Harus kelipatan Rp. 10.000 ");
+				System.out.print(" Terbilang :");
+				System.out.print(ConsoleUtil.terbilang(Double.valueOf(10_000)) + " Rupiah");
+				System.out.println();
+
+			}
+		} while (status);
+
+		return nominalPenarikan;
+	}
+
+	public static void phoneCreditsTopUp(Customer customer, ATM atm) {
 		System.out.print(" Isi lang pulsa\n");
 
 		boolean isNoTelp = false;
@@ -246,9 +251,6 @@ public class ATMLogic {
 					System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
 					System.out.println();
 
-					transactions.add(new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer,
-							TransactionType.TOP_UP, nominalPulsa));
-
 				} else {
 					System.out.println(" saldo tidak cukup");
 				}
@@ -261,7 +263,7 @@ public class ATMLogic {
 
 	}
 
-	public static void electricityBillsToken(Customer customer, ATM atm, List<Transaction> transactions) {
+	public static void electricityBillsToken(Customer customer, ATM atm) {
 
 		System.out.print(" Isi token listrik\n");
 
@@ -312,9 +314,6 @@ public class ATMLogic {
 				System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
 				System.out.println();
 
-				transactions.add(new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer, TransactionType.TOP_UP,
-						nominalToken));
-
 			} else {
 				System.out.println(" saldo tidak cukup");
 			}
@@ -324,36 +323,118 @@ public class ATMLogic {
 		}
 	}
 
-	public static void accountMutation(Customer customer, List<Transaction> transactions) {
+	public static void accountMutation(Customer customer) {
 
-		if (transactions.size() == 0) {
-			System.out.print("   +-------------------+\n");
-			System.out.print("   | Data masih kosong |\n");
-			System.out.print("   +-------------------+\n");
-		} else {
+		Set<Bank> banks = getAllBank();
 
-			String message = " Data masih kosong";
+		Bank bank = null;
+		boolean isNumber = false;
 
-			for (Transaction t : transactions) {
-				if (customer.getId().equals(t.getCustomer().getId())) {
+		do {
 
-					List<Transaction> newTransactions = transactions.stream().filter(x -> x.getCustomer().getId().equals(customer.getId()))
-							.collect(Collectors.toList());
+			String[] listMenu = { "BCA", "BRI", "BNI", "MANDIRI" };
+			ConsoleUtil.printMenuSimple(listMenu, "Pilihan Bank tujuan");
+			System.out.print(" > ");
+			int x = ConsoleUtil.validateInputNumber("> ", "");
 
-					ConsoleUtil.createTableTransaction(newTransactions);
-
-					message = "";
+			switch (x) {
+				case 1:
+					bank = getBank(banks, "bca");
+					isNumber = true;
 					break;
-				}
-
+				case 2:
+					bank = getBank(banks, "bri");
+					isNumber = true;
+					break;
+				case 3:
+					bank = getBank(banks, "bni");
+					isNumber = true;
+					break;
+				case 4:
+					bank = getBank(banks, "mandiri");
+					isNumber = true;
+					break;
+				default:
+					System.out.println(" pilihan anda tidak ada dalam daftar");
+					break;
 			}
 
-			System.out.println(message);
+		} while (!isNumber);
+
+		System.out.println();
+		Customer cuss = validateInputCustomer(bank);
+
+		if (cuss.getId().equals(customer.getId())) {
+			System.out.println(" Anda tidak bia melakukan transfer ke diri sendiri");
+		} else {
+			System.out.print(" Masukan nominal : ");
+
+			int x = ConsoleUtil.validateInputNumber(" > ", "");
+
+			System.out.println(" Berhasil tranfer ke");
+			System.out.println(" Bank Tujuan ...... :" + bank.getName());
+			System.out.println(" Rekening Tujuan .. :" + cuss.getAccount());
+			System.out.println(" Nominal  ......... :" + x);
+			cuss.setBalance(cuss.getBalance() + x);
+			customer.setBalance(customer.getBalance() - x);
+			;
+
+			System.out.println();
+			System.out.println(" Sisa saldo anda Rp. " + String.format("%,.0f", (double) customer.getBalance()));
+
+			System.out.print(" Terbilang :");
+			System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
+			System.out.println();
 		}
 
 	}
 
-	public static void moneyDeposit(Customer customer, List<Transaction> transactions) {
+	public static Customer validateInputCustomer(Bank bank) {
+		String acc = "";
+		Customer customer = null;
+
+		Set<Customer> customers = bank.getCustomers();
+
+		//
+		boolean status = true;
+		System.out.print(" Masukan No rekening Tujuan : ");
+		acc = ConsoleUtil.sc.next();
+
+		for (Customer c : customers) {
+			if (acc.equals(c.getAccount())) {
+				status = false;
+				customer = c;
+			}
+		}
+
+		while (status) {
+			System.out.println(" Rekening Tujuan tidak terdaftar");
+			System.out.print(" Masukan No rekening Tujuan : ");
+			acc = ConsoleUtil.sc.next();
+
+			for (Customer c : customers) {
+				if (acc.equals(c.getAccount())) {
+					status = false;
+					customer = c;
+				}
+			}
+		}
+
+		return customer;
+	}
+
+	public static Bank getBank(Set<Bank> banks, String name) {
+		Bank bank = null;
+		for (Bank b : banks) {
+			if (name.equalsIgnoreCase(b.getName())) {
+
+				bank = b;
+			}
+		}
+		return bank;
+	}
+
+	public static void moneyDeposit(Customer customer) {
 		System.out.print(" Deposit\n");
 
 		System.out.print(" Masukan jumlah deposit : ");
@@ -384,8 +465,6 @@ public class ATMLogic {
 			System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
 			System.out.println();
 
-			transactions
-					.add(new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer, TransactionType.TOP_UP, x));
 		}
 
 	}
@@ -400,11 +479,11 @@ public class ATMLogic {
 
 			System.out.print(" Anda yakin mau logout? (Y/T) : ");
 			String x = ConsoleUtil.sc.next();
-			if (x.equalsIgnoreCase("y")) {
+			if (x.equals("y")) {
 				isLoop = false;
 				System.out.println(" " + customer.getFullName() + " ... Logout");
 				isBool.addAll(Arrays.asList(false, false));
-			} else if (x.equalsIgnoreCase("t")) {
+			} else if (x.equals("t")) {
 				isBool.addAll(Arrays.asList(true, false));
 				isLoop = false;
 			} else {
@@ -417,7 +496,7 @@ public class ATMLogic {
 
 	}
 
-	public static boolean mainMenu(Customer customer, ATM atm, List<Transaction> transactions) {
+	public static boolean mainMenu(Customer customer, ATM atm) {
 
 		boolean status = true;
 
@@ -434,19 +513,19 @@ public class ATMLogic {
 					accountBalanceInformation(customer);
 					break;
 				case 2:
-					moneyWithdrawal(customer, atm, transactions);
+					moneyWithdrawal(customer, atm);
 					break;
 				case 3:
-					phoneCreditsTopUp(customer, atm, transactions);
+					phoneCreditsTopUp(customer, atm);
 					break;
 				case 4:
-					electricityBillsToken(customer, atm, transactions);
+					electricityBillsToken(customer, atm);
 					break;
 				case 5:
-					accountMutation(customer, transactions);
+					accountMutation(customer);
 					break;
 				case 6:
-					moneyDeposit(customer, transactions);
+					moneyDeposit(customer);
 					break;
 				case 0:
 					List<Boolean> isBool = logOut(customer);
@@ -461,6 +540,24 @@ public class ATMLogic {
 
 		return status;
 
+	}
+
+	public static Set<Customer> getAllCustomer() {
+		Set<Customer> customers = new HashSet<Customer>();
+		List<Set<Customer>> banks = BankRepo.store.stream().map(x -> x.getCustomers()).collect(Collectors.toList());
+
+		for (Set<Customer> o : banks) {
+			customers.addAll(o);
+		}
+		return customers;
+	}
+
+	public static Set<Bank> getAllBank() {
+		Set<Bank> banks = new HashSet<Bank>();
+		for (Bank o : BankRepo.store) {
+			banks.add(o);
+		}
+		return banks;
 	}
 
 }
