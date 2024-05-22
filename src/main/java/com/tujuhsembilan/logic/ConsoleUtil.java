@@ -49,9 +49,7 @@ public class ConsoleUtil {
 		}
 		return Integer.valueOf(numberInput);
 	}
-	
-	
-	
+
 	public static String validateInputNoTelp(String sign, String message) {
 		boolean isValid = true;
 
@@ -72,11 +70,6 @@ public class ConsoleUtil {
 		return numberInput;
 	}
 
-	
-	
-	
-	
-	
 	public static void printMenu(String[] listMenu, String title) {
 
 		int number = 1;
@@ -91,6 +84,20 @@ public class ConsoleUtil {
 				System.out.println(" 0. " + data);
 				System.out.print(" > ");
 			}
+			number++;
+		}
+	}
+
+	public static void printMenuSimple(String[] listMenu, String title) {
+
+		int number = 1;
+		System.out.println();
+		System.out.println(" " + title);
+
+		for (String data : listMenu) {
+
+			System.out.println(" " + number + ". " + data);
+
 			number++;
 		}
 	}
