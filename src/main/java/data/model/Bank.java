@@ -10,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
@@ -19,22 +18,20 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Setter(AccessLevel.NONE)
+
 public class Bank {
+	
   private String id;
-
   private String name;
-
-  @Getter(AccessLevel.NONE)
   private Boolean depositFeature;
-
-  private BigDecimal maxExpensePerWithdrawal;
-  private BigDecimal maxExpensePerUserDaily;
-
+  private double maxExpensePerWithdrawal;
+  private double maxExpensePerUserDaily;
   @Builder.Default
   private Set<Customer> customers = new HashSet<>();
   @Builder.Default
   private Set<Transaction> transactions = new HashSet<>();
-
+  
+  
   public boolean hasDepositFeature() {
     return this.depositFeature.booleanValue();
   }

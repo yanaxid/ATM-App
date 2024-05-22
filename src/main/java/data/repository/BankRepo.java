@@ -1,6 +1,6 @@
 package data.repository;
 
-import java.math.BigDecimal;
+
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -15,71 +15,84 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.NONE)
 public class BankRepo {
 
-        private static final long DEFAULT_DAILY_EXPENSE = 5_000_000;
-        private static final long DEFAULT_WITHDRAWAL_LIMIT = 2_500_000;
+    private static final long DEFAULT_DAILY_EXPENSE = 5_000_000;
+    private static final long DEFAULT_WITHDRAWAL_LIMIT = 2_500_000;
 
     private static final Set<Bank> store = new HashSet<>();
+    
+    
     static {
         Bank bri = Bank.builder()
                 .id(UUID.randomUUID().toString())
-                        .name(BankCompany.BRI.getName())
-                        .maxExpensePerUserDaily(BigDecimal.valueOf(DEFAULT_DAILY_EXPENSE))
-                        .maxExpensePerWithdrawal(BigDecimal.valueOf(DEFAULT_WITHDRAWAL_LIMIT))
+                .name(BankCompany.BRI.getName())
+                .maxExpensePerUserDaily(DEFAULT_DAILY_EXPENSE)
+                .maxExpensePerWithdrawal(DEFAULT_WITHDRAWAL_LIMIT)
                 .build();
         store.add(bri);
+        
+        //customer
         bri.getCustomers().add(Customer.builder()
                 .id(UUID.randomUUID().toString())
-                .account("111111111")
-                .pin("111111")
+                .account("11")
+                .pin("11")
                 .fullName("Nasabah BRI 1")
-                .balance(BigDecimal.valueOf(5_000_000))
+                .balance(5_000_000)
                 .build());
+        
+        
+        ///------------
 
         Bank bni = Bank.builder()
                 .id(UUID.randomUUID().toString())
                         .name(BankCompany.BNI.getName())
                 .depositFeature(true)
-                        .maxExpensePerUserDaily(BigDecimal.valueOf(DEFAULT_DAILY_EXPENSE))
-                        .maxExpensePerWithdrawal(BigDecimal.valueOf(DEFAULT_WITHDRAWAL_LIMIT))
+                        .maxExpensePerUserDaily(DEFAULT_DAILY_EXPENSE)
+                        .maxExpensePerWithdrawal(DEFAULT_WITHDRAWAL_LIMIT)
                 .build();
         store.add(bni);
         bni.getCustomers().add(Customer.builder()
                 .id(UUID.randomUUID().toString())
-                .account("222222222")
-                .pin("222222")
+                .account("22")
+                .pin("22")
                 .fullName("Nasabah BNI 1")
-                .balance(BigDecimal.valueOf(3_000_000))
+                .balance(3_000_000)
                 .build());
 
+        
+      ///------------
+        
         Bank mandiri = Bank.builder()
                 .id(UUID.randomUUID().toString())
-                        .name(BankCompany.MANDIRI.getName())
+                .name(BankCompany.MANDIRI.getName())
                 .depositFeature(true)
-                        .maxExpensePerUserDaily(BigDecimal.valueOf(DEFAULT_DAILY_EXPENSE))
-                        .maxExpensePerWithdrawal(BigDecimal.valueOf(DEFAULT_WITHDRAWAL_LIMIT))
+                .maxExpensePerUserDaily(DEFAULT_DAILY_EXPENSE)
+                .maxExpensePerWithdrawal(DEFAULT_WITHDRAWAL_LIMIT)
                 .build();
         store.add(mandiri);
         mandiri.getCustomers().add(Customer.builder()
                 .id(UUID.randomUUID().toString())
-                .account("333333333")
-                .pin("333333")
+                .account("33")
+                .pin("33")
                 .fullName("Nasabah Mandiri 1")
-                .balance(BigDecimal.valueOf(1_500_000))
+                .balance(1_500_000)
                 .build());
 
+        
+        ///------------
         Bank bca = Bank.builder()
                 .id(UUID.randomUUID().toString())
-                        .name(BankCompany.BCA.getName())
-                        .maxExpensePerUserDaily(BigDecimal.valueOf(DEFAULT_DAILY_EXPENSE))
-                        .maxExpensePerWithdrawal(BigDecimal.valueOf(DEFAULT_WITHDRAWAL_LIMIT))
+                .name(BankCompany.BCA.getName())
+                .maxExpensePerUserDaily(DEFAULT_DAILY_EXPENSE)
+                 .maxExpensePerWithdrawal(DEFAULT_WITHDRAWAL_LIMIT)
                 .build();
         store.add(bca);
+        
         bca.getCustomers().add(Customer.builder()
                 .id(UUID.randomUUID().toString())
-                .account("444444444")
-                .pin("444444")
+                .account("44")
+                .pin("44")
                 .fullName("Nasabah BCA 1")
-                .balance(BigDecimal.valueOf(240_000))
+                .balance(240_000)
                 .build());
     }
 

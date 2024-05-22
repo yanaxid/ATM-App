@@ -11,24 +11,20 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+
+
 public class Customer {
   private String id;
-
   private String account;
   private String pin;
-
   private String fullName;
+  private double balance;
+  private int invalidTries;
 
-  private BigDecimal balance;
 
-  private Integer invalidTries;
-
-  /**
-   * Use this function to add balance to Customer
-   *
-   * @param amount
-   */
-  public void add(BigDecimal amount) {
-    this.balance = this.balance.add(amount);
-  }
+//  public void add(BigDecimal amount) {
+//    this.balance = this.balance.add(amount);
+//  }
+  
+  
 }

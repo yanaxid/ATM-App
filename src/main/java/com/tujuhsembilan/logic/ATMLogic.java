@@ -1,27 +1,354 @@
 package com.tujuhsembilan.logic;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import data.constant.TransactionType;
+import data.model.ATM;
+import data.model.Bank;
+import data.model.Customer;
+import data.model.Transaction;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 @NoArgsConstructor(access = AccessLevel.NONE)
 public class ATMLogic {
 
-  public static void login() {
-  }
+	public static Customer login(Bank bank, ATM atm) {
+		Customer customer = null;
 
-  public static void accountBalanceInformation() {
-  }
+		int counter = 1;
 
-  public static void moneyWithdrawal() {
-  }
+		do {
+			System.out.print(" ACCOUNT : ");
+			String acc = String.valueOf(ConsoleUtil.validateInputNumber(" ACCOUNT : ", " Acount tidak ditemukan"));
+			System.out.print(" PIN     : ");
+			String pin = String.valueOf(ConsoleUtil.validateInputNumber(" PIN     : ", " PIN anda salah, ulangi"));
 
-  public static void phoneCreditsTopUp() {
-  }
+			String message = "";
+			Set<Customer> customers = bank.getCustomers();
 
-  public static void electricityBillsToken() {
-  }
+			for (Customer c : customers) {
 
-  public static void accountMutation() {
-  }
+				if (acc.equals(c.getAccount())) {
 
-  public static void moneyDeposit() {
-  }
+					if (pin.equals(c.getPin())) {
+						message = " login ... as " + c.getFullName();
+						customer = c;
+						break;
+					} else {
+						if (counter == 3) {
+							message = " PIN salah, kesempatan habis";
+
+						} else {
+							message = " PIN salah, kesempatan " + (3 - counter) + "x lagi";
+							c.setInvalidTries(c.getInvalidTries() + 1);
+						}
+						break;
+					}
+				} else {
+					if (counter == 3) {
+						message = " ACCOUNT salah, kesempatan habis";
+					} else {
+						message = " ACCOUNT salah, kesempatan coba lagi";
+					}
+				}
+
+			}
+
+			System.out.println(message);
+			if (customer != null) {
+				break;
+			}
+			counter++;
+		} while (counter <= 3);
+
+		return customer;
+
+	}
+
+	public static void accountBalanceInformation(Customer customer) {
+
+		System.out.print(" Informasi Akun\n");
+
+		System.out.println(" Name ..... : " + customer.getFullName());
+		System.out.println(" Balance .. : Rp. " + String.format("%,.0f", customer.getBalance()));
+		System.out.print(" Terbilang :");
+		System.out.print(ConsoleUtil.terbilang(customer.getBalance()) + " Rupiah");
+		System.out.println();
+
+	}
+
+	public static void moneyWithdrawal(Customer customer, ATM atm, List<Transaction> transactions) {
+		System.out.print(" Tarik Tunai\n");
+
+		System.out.print(" Masukan jumlah penarikan : ");
+		double x = Double.valueOf(ConsoleUtil.validateInputNumber(" Masukan jumlah penarikan : ", ""));
+
+		boolean status = false;
+
+		if (x % 10_000 == 0) {
+			status = true;
+		} else {
+			System.out.println(" Harus kelipatan Rp. 10.000 " );
+			System.out.print(" Terbilang :");
+			System.out.print(ConsoleUtil.terbilang(Double.valueOf(10_000)) + " Rupiah");
+			System.out.println();
+			
+		}
+
+		if (status) {
+
+			if (atm.getBalance() >= x) {
+
+				if (x <= atm.getBank().getMaxExpensePerWithdrawal()) {
+
+					double count = customer.getBalance() - x;
+
+					if (count >= 10_000) {
+						atm.setBalance(atm.getBalance() - x);
+						customer.setBalance(customer.getBalance() - x);
+						System.out.println(" Berhasil tarik sebesar Rp. " + String.format("%,.0f", (double) x));
+						
+						System.out.print(" Terbilang :");
+						System.out.print(ConsoleUtil.terbilang(Double.valueOf(x)) + " Rupiah");
+						System.out.println();
+						
+						System.out.println(" Sisa saldo anda Rp. " + String.format("%,.0f", (double) customer.getBalance()));
+						
+						System.out.print(" Terbilang :");
+						System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
+						System.out.println();
+						
+						
+						transactions.add(new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer,
+								TransactionType.WITHDRAWAL, x));
+					} else {
+						System.out.println(" saldo tidak cukup");
+					}
+
+				} else {
+					System.out.println(" maximum penarikan 2.500.000");
+				}
+
+			} else {
+				System.out.println(" ATM balance tidak cukup");
+			}
+		}
+
+	}
+
+	public static void phoneCreditsTopUp(Customer customer, ATM atm, List<Transaction> transactions) {
+		System.out.print(" Isi lang pulsa\n");
+
+		System.out.print(" Masukan jumlah pulsa : ");
+		double x = Double.valueOf(ConsoleUtil.validateInputNumber(" Masukan jumlah pulsa : ", ""));
+
+		if (atm.getBalance() >= x) {
+
+			double count = customer.getBalance() - x;
+			if (count >= 10_000) {
+				atm.setBalance(atm.getBalance() - x);
+				customer.setBalance(customer.getBalance() - x);
+				System.out.println(" Berhasil membeli pulsa sebesar Rp. " + String.format("%,.0f", (double) x));
+				System.out.print(" Terbilang :");
+				System.out.print(ConsoleUtil.terbilang(Double.valueOf(x)) + " Rupiah");
+				System.out.println();
+				
+				
+				System.out.println(" Sisa saldo anda Rp. " + String.format("%,.0f", (double) customer.getBalance()));
+				
+				System.out.print(" Terbilang :");
+				System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
+				System.out.println();
+
+				transactions.add(
+						new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer, TransactionType.TOP_UP, x));
+
+			} else {
+				System.out.println(" saldo tidak cukup");
+			}
+
+		} else {
+			System.out.println(" ATM balance tidak cukup");
+		}
+	}
+
+	public static void electricityBillsToken(Customer customer, ATM atm, List<Transaction> transactions) {
+
+		System.out.print(" Isi token listrik\n");
+
+		System.out.print(" Masukan jumlah bayar token : ");
+		double x = Double.valueOf(ConsoleUtil.validateInputNumber(" Masukan jumlah bayar token : ", ""));
+
+		if (atm.getBalance() >= x) {
+
+			double count = customer.getBalance() - x;
+			if (count >= 10_000) {
+				atm.setBalance(atm.getBalance() - x);
+				customer.setBalance(customer.getBalance() - x);
+				System.out.println(" Berhasil membeli token sebesar Rp. " + String.format("%,.0f", (double) x));
+				System.out.print(" Terbilang :");
+				System.out.print(ConsoleUtil.terbilang(Double.valueOf(x)) + " Rupiah");
+				System.out.println();
+				System.out.println(" Sisa saldo anda Rp. " + String.format("%,.0f", (double) customer.getBalance()));
+				System.out.print(" Terbilang :");
+				System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
+				System.out.println();
+
+				transactions.add(
+						new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer, TransactionType.TOP_UP, x));
+
+			} else {
+				System.out.println(" saldo tidak cukup");
+			}
+
+		} else {
+			System.out.println(" ATM balance tidak cukup");
+		}
+	}
+
+	public static void accountMutation(Customer customer, List<Transaction> transactions) {
+
+		if (transactions.size() == 0) {
+			System.out.print("   +-------------------+\n");
+			System.out.print("   | Data masih kosong |\n");
+			System.out.print("   +-------------------+\n");
+		} else {
+
+			String message = " Data masih kosong";
+
+			for (Transaction t : transactions) {
+				if (customer.getId().equals(t.getCustomer().getId())) {
+
+					List<Transaction> newTransactions = transactions.stream().filter(x -> x.getCustomer().getId().equals(customer.getId()))
+							.collect(Collectors.toList());
+
+					ConsoleUtil.createTableTransaction(newTransactions);
+
+					message = "";
+					break;
+				}
+
+			}
+
+			System.out.println(message);
+		}
+
+	}
+
+	public static void moneyDeposit(Customer customer, List<Transaction> transactions) {
+		System.out.print(" Deposit\n");
+
+		System.out.print(" Masukan jumlah deposit : ");
+		double x = Double.valueOf(ConsoleUtil.validateInputNumber(" Masukan jumlah deposit : ", ""));
+
+		boolean status = false;
+
+		if (x % 10_000 == 0) {
+			status = true;
+		} else {
+			System.out.println(" Harus kelipatan Rp. 10.000");
+			System.out.print(" Terbilang :");
+			System.out.print(ConsoleUtil.terbilang(Double.valueOf(10_000)) + " Rupiah");
+			System.out.println();
+			
+		}
+
+		if (status) {
+
+			customer.setBalance(customer.getBalance() + x);
+			System.out.println(" Berhasil menambah deposit sebesar Rp. " + String.format("%,.0f", (double) x));
+			System.out.print(" Terbilang :");
+			System.out.print(ConsoleUtil.terbilang(Double.valueOf(x)) + " Rupiah");
+			System.out.println();
+			
+			System.out.println(" Saldo anda sekarang Rp. " + String.format("%,.0f", (double) customer.getBalance()));
+			System.out.print(" Terbilang :");
+			System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
+			System.out.println();
+
+			transactions.add(new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer,
+					TransactionType.TOP_UP, x));
+		}
+
+	}
+
+	// Logout
+
+	public static List<Boolean> logOut(Customer customer) {
+		List<Boolean> isBool = new ArrayList<Boolean>();
+
+		boolean isLoop = true;
+		do {
+
+			System.out.print(" Anda yakin mau logout? (Y/T) : ");
+			String x = ConsoleUtil.sc.next();
+			if (x.equalsIgnoreCase("y")) {
+				isLoop = false;
+				System.out.println(" " + customer.getFullName() + " ... Logout");
+				isBool.addAll(Arrays.asList(false, false));
+			} else if (x.equalsIgnoreCase("t")) {
+				isBool.addAll(Arrays.asList(true, false));
+				isLoop = false;
+			} else {
+				System.out.println(" Inputkan hurup y/t");
+			}
+
+		} while (isLoop);
+
+		return isBool;
+
+	}
+
+	public static boolean mainMenu(Customer customer, ATM atm, List<Transaction> transactions) {
+
+		boolean status = true;
+
+		String[] listMenu = { "Account Information", "Money Withdrawal", "Phone Credits TopUp", "Electricity Bills Token", "accountMutation",
+				"moneyDeposit", "Logout" };
+		boolean isLooping = true;
+
+		do {
+
+			ConsoleUtil.printMenu(listMenu, "MENU ATM");
+			int x = ConsoleUtil.validateInputNumber("> ", "");
+			switch (x) {
+				case 1:
+					accountBalanceInformation(customer);
+					break;
+				case 2:
+					moneyWithdrawal(customer, atm, transactions);
+					break;
+				case 3:
+					phoneCreditsTopUp(customer, atm, transactions);
+					break;
+				case 4:
+					electricityBillsToken(customer, atm, transactions);
+					break;
+				case 5:
+					accountMutation(customer, transactions);
+					break;
+				case 6:
+					moneyDeposit(customer, transactions);
+					break;
+				case 0:
+					List<Boolean> isBool = logOut(customer);
+					isLooping = isBool.get(0);
+					status = isBool.get(1);
+					break;
+				default:
+					System.out.println("Pilihan tidak ada dalam daftar menu, ulangi lagi");
+					break;
+			}
+		} while (isLooping);
+
+		return status;
+
+	}
 
 }

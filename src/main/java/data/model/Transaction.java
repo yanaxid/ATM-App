@@ -1,17 +1,28 @@
 package data.model;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 import data.constant.TransactionType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 
 public class Transaction {
+	
   private String id;
-
-  private LocalDateTime timestamp;
-
+  private String timestamp;
   private Customer customer;
   private TransactionType type;
-
-  private BigDecimal expense;
+  private double expense;
+  
+ 
 }
