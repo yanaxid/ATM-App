@@ -16,7 +16,9 @@ import static com.tujuhsembilan.logic.ConsoleUtil.*;
 
 public class App {
 
-	//git yana
+	//git
+	
+	
     public static void main(String[] args) {
         boolean loop = true;
         while (loop) {
