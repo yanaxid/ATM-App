@@ -149,7 +149,6 @@ public class ATMLogic {
 			System.out.print(" Masukan Nomor Telpon : ");
 			String noTelp = ConsoleUtil.validateInputNoTelp(" Masukan Nomor Telpon : ", "");
 
-
 			if (noTelp.length() >= 3 && noTelp.length() <= 15) {
 				isNoTelp = true;
 			} else {
@@ -160,18 +159,50 @@ public class ATMLogic {
 
 		if (isNoTelp) {
 
-			System.out.print(" Masukan jumlah pulsa : ");
-			double x = Double.valueOf(ConsoleUtil.validateInputNumber(" Masukan jumlah pulsa : ", ""));
+			int nominalPulsa = 0;
+			boolean isNumber = false;
+			do {
+				String[] listMenu = { "10.000", "20.000", "50.000", "100.000" };
+				ConsoleUtil.printMenu(listMenu, "Pilih isi pulsa");
+				int x = ConsoleUtil.validateInputNumber("> ", "");
 
-			if (atm.getBalance() >= x) {
+				switch (x) {
+					case 1:
+						nominalPulsa = 10_000;
+						isNumber = true;
+						break;
+					case 2:
+						nominalPulsa = 20_000;
+						isNumber = true;
+						break;
+					case 3:
+						nominalPulsa = 50_000;
+						isNumber = true;
+						break;
+					case 4:
+						nominalPulsa = 100_000;
+						isNumber = true;
+						break;
+					default:
+						System.out.println(" pilihan anda tidak ada dalam daftar");
+						break;
+				}
 
-				double count = customer.getBalance() - x;
+			} while (!isNumber);
+			
+//
+//			System.out.print(" Masukan jumlah pulsa : ");
+//			double x = Double.valueOf(ConsoleUtil.validateInputNumber(" Masukan jumlah pulsa : ", ""));
+
+			if (atm.getBalance() >= nominalPulsa) {
+
+				double count = customer.getBalance() - nominalPulsa;
 				if (count >= 10_000) {
-					atm.setBalance(atm.getBalance() - x);
-					customer.setBalance(customer.getBalance() - x);
-					System.out.println(" Berhasil membeli pulsa sebesar Rp. " + String.format("%,.0f", (double) x));
+					atm.setBalance(atm.getBalance() - nominalPulsa);
+					customer.setBalance(customer.getBalance() - nominalPulsa);
+					System.out.println(" Berhasil membeli pulsa sebesar Rp. " + String.format("%,.0f", (double) nominalPulsa));
 					System.out.print(" Terbilang :");
-					System.out.print(ConsoleUtil.terbilang(Double.valueOf(x)) + " Rupiah");
+					System.out.print(ConsoleUtil.terbilang(Double.valueOf(nominalPulsa)) + " Rupiah");
 					System.out.println();
 
 					System.out.println(" Sisa saldo anda Rp. " + String.format("%,.0f", (double) customer.getBalance()));
@@ -181,7 +212,7 @@ public class ATMLogic {
 					System.out.println();
 
 					transactions.add(
-							new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer, TransactionType.TOP_UP, x));
+							new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer, TransactionType.TOP_UP, nominalPulsa));
 
 				} else {
 					System.out.println(" saldo tidak cukup");
