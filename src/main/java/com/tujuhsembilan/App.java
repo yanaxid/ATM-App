@@ -16,6 +16,7 @@ import static com.tujuhsembilan.logic.ConsoleUtil.*;
 
 public class App {
 
+	//git yana
     public static void main(String[] args) {
         boolean loop = true;
         while (loop) {
@@ -46,6 +47,7 @@ public class App {
     }
 
     /// --- --- --- --- ---
+    
 
     final Bank bank;
     final ATM atm;
