@@ -1,6 +1,5 @@
 package data.model;
 
-import java.math.BigDecimal;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;

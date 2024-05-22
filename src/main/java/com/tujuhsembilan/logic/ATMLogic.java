@@ -54,7 +54,7 @@ public class ATMLogic {
 					if (counter == 3) {
 						message = " ACCOUNT salah, kesempatan habis";
 					} else {
-						message = " ACCOUNT salah, kesempatan coba lagi";
+						message = " ACCOUNT salah, coba lagi";
 					}
 				}
 
@@ -73,9 +73,8 @@ public class ATMLogic {
 
 	public static void accountBalanceInformation(Customer customer) {
 
-		System.out.print(" Informasi Akun\n");
+		System.out.print(" Informasi Saldo\n");
 
-		System.out.println(" Name ..... : " + customer.getFullName());
 		System.out.println(" Balance .. : Rp. " + String.format("%,.0f", customer.getBalance()));
 		System.out.print(" Terbilang :");
 		System.out.print(ConsoleUtil.terbilang(customer.getBalance()) + " Rupiah");
@@ -94,11 +93,11 @@ public class ATMLogic {
 		if (x % 10_000 == 0) {
 			status = true;
 		} else {
-			System.out.println(" Harus kelipatan Rp. 10.000 " );
+			System.out.println(" Harus kelipatan Rp. 10.000 ");
 			System.out.print(" Terbilang :");
 			System.out.print(ConsoleUtil.terbilang(Double.valueOf(10_000)) + " Rupiah");
 			System.out.println();
-			
+
 		}
 
 		if (status) {
@@ -113,18 +112,17 @@ public class ATMLogic {
 						atm.setBalance(atm.getBalance() - x);
 						customer.setBalance(customer.getBalance() - x);
 						System.out.println(" Berhasil tarik sebesar Rp. " + String.format("%,.0f", (double) x));
-						
+
 						System.out.print(" Terbilang :");
 						System.out.print(ConsoleUtil.terbilang(Double.valueOf(x)) + " Rupiah");
 						System.out.println();
-						
+
 						System.out.println(" Sisa saldo anda Rp. " + String.format("%,.0f", (double) customer.getBalance()));
-						
+
 						System.out.print(" Terbilang :");
 						System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
 						System.out.println();
-						
-						
+
 						transactions.add(new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer,
 								TransactionType.WITHDRAWAL, x));
 					} else {
@@ -145,37 +143,56 @@ public class ATMLogic {
 	public static void phoneCreditsTopUp(Customer customer, ATM atm, List<Transaction> transactions) {
 		System.out.print(" Isi lang pulsa\n");
 
-		System.out.print(" Masukan jumlah pulsa : ");
-		double x = Double.valueOf(ConsoleUtil.validateInputNumber(" Masukan jumlah pulsa : ", ""));
+		boolean isNoTelp = false;
 
-		if (atm.getBalance() >= x) {
+		do {
+			System.out.print(" Masukan Nomor Telpon : ");
+			String noTelp = ConsoleUtil.validateInputNoTelp(" Masukan Nomor Telpon : ", "");
 
-			double count = customer.getBalance() - x;
-			if (count >= 10_000) {
-				atm.setBalance(atm.getBalance() - x);
-				customer.setBalance(customer.getBalance() - x);
-				System.out.println(" Berhasil membeli pulsa sebesar Rp. " + String.format("%,.0f", (double) x));
-				System.out.print(" Terbilang :");
-				System.out.print(ConsoleUtil.terbilang(Double.valueOf(x)) + " Rupiah");
-				System.out.println();
-				
-				
-				System.out.println(" Sisa saldo anda Rp. " + String.format("%,.0f", (double) customer.getBalance()));
-				
-				System.out.print(" Terbilang :");
-				System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
-				System.out.println();
 
-				transactions.add(
-						new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer, TransactionType.TOP_UP, x));
-
+			if (noTelp.length() >= 3 && noTelp.length() <= 15) {
+				isNoTelp = true;
 			} else {
-				System.out.println(" saldo tidak cukup");
+				System.out.println(" No telp tidak valid");
 			}
 
-		} else {
-			System.out.println(" ATM balance tidak cukup");
+		} while (!isNoTelp);
+
+		if (isNoTelp) {
+
+			System.out.print(" Masukan jumlah pulsa : ");
+			double x = Double.valueOf(ConsoleUtil.validateInputNumber(" Masukan jumlah pulsa : ", ""));
+
+			if (atm.getBalance() >= x) {
+
+				double count = customer.getBalance() - x;
+				if (count >= 10_000) {
+					atm.setBalance(atm.getBalance() - x);
+					customer.setBalance(customer.getBalance() - x);
+					System.out.println(" Berhasil membeli pulsa sebesar Rp. " + String.format("%,.0f", (double) x));
+					System.out.print(" Terbilang :");
+					System.out.print(ConsoleUtil.terbilang(Double.valueOf(x)) + " Rupiah");
+					System.out.println();
+
+					System.out.println(" Sisa saldo anda Rp. " + String.format("%,.0f", (double) customer.getBalance()));
+
+					System.out.print(" Terbilang :");
+					System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
+					System.out.println();
+
+					transactions.add(
+							new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer, TransactionType.TOP_UP, x));
+
+				} else {
+					System.out.println(" saldo tidak cukup");
+				}
+
+			} else {
+				System.out.println(" ATM balance tidak cukup");
+			}
+
 		}
+
 	}
 
 	public static void electricityBillsToken(Customer customer, ATM atm, List<Transaction> transactions) {
@@ -256,7 +273,7 @@ public class ATMLogic {
 			System.out.print(" Terbilang :");
 			System.out.print(ConsoleUtil.terbilang(Double.valueOf(10_000)) + " Rupiah");
 			System.out.println();
-			
+
 		}
 
 		if (status) {
@@ -266,14 +283,14 @@ public class ATMLogic {
 			System.out.print(" Terbilang :");
 			System.out.print(ConsoleUtil.terbilang(Double.valueOf(x)) + " Rupiah");
 			System.out.println();
-			
+
 			System.out.println(" Saldo anda sekarang Rp. " + String.format("%,.0f", (double) customer.getBalance()));
 			System.out.print(" Terbilang :");
 			System.out.print(ConsoleUtil.terbilang(Double.valueOf(customer.getBalance())) + " Rupiah");
 			System.out.println();
 
-			transactions.add(new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer,
-					TransactionType.TOP_UP, x));
+			transactions
+					.add(new Transaction(UUID.randomUUID().toString(), String.valueOf(new java.util.Date()), customer, TransactionType.TOP_UP, x));
 		}
 
 	}

@@ -49,7 +49,34 @@ public class ConsoleUtil {
 		}
 		return Integer.valueOf(numberInput);
 	}
+	
+	
+	
+	public static String validateInputNoTelp(String sign, String message) {
+		boolean isValid = true;
 
+		String numberInput = "";
+
+		while (isValid) {
+			numberInput = sc.next();
+			if (numberInput.matches("[0-9]+")) {
+				isValid = false;
+			} else {
+				if (message.equalsIgnoreCase("")) {
+					message += " Inputan harus angka!";
+				}
+				System.out.println(message);
+				System.out.print(" " + sign);
+			}
+		}
+		return numberInput;
+	}
+
+	
+	
+	
+	
+	
 	public static void printMenu(String[] listMenu, String title) {
 
 		int number = 1;

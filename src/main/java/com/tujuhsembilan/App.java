@@ -28,10 +28,10 @@ public class App {
 		while (loop) {
 			printClear();
 
-			// create menu
 
 			int num = 1;
 			List<BankCompany> bankCompanies = BankCompany.values();
+			System.out.println();
 			for (String menu : bankCompanies.stream().map(item -> "ATM " + item.getName()).collect(Collectors.toList())) {
 				System.out.println(" " + num + ". " + menu);
 				num++;
@@ -71,7 +71,6 @@ public class App {
 
 		Optional<Bank> qBank = BankRepo.findBankByName(bankName);
 
-		// if nama bank ada
 		if (qBank.isPresent()) {
 			Optional<ATM> qAtm = ATMRepo.findATMByBank(qBank.get());
 			if (qAtm.isPresent()) {
@@ -86,7 +85,6 @@ public class App {
 
 	public void start(List<Transaction> transactions) {
 		if (bank != null && atm != null) {
-
 
 			Customer customer =  ATMLogic.login(bank, atm);
 

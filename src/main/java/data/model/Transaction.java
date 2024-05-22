@@ -1,7 +1,5 @@
 package data.model;
 
-import java.math.BigDecimal;
-
 import data.constant.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
