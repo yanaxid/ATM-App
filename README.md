@@ -157,4 +157,4 @@ Asal Kampus/Sekolah:  { Universitas Pasundan }
 
 _Silakan masukkan ulasan Anda di sini, hanya setelah Anda menyelesaikan project ini, baik setelah selesai atau karena batas waktu!_
 
-> ```{ TULIS REVIEW ANDA DISINI }```
+> ```{ Project ini sangat menantang bagi saya, saya senang bisa ikut mengerjakan project ini. ini sangat keren }```
